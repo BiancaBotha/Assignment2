@@ -1,0 +1,77 @@
+﻿@model Assignment2.Models.ViewModels.AdvancedVM
+@using Assignment2.Models.ViewModels
+@using System.Globalization
+@{
+    /**/
+
+    ViewBag.Title = "ADVReporting";
+}
+
+<h2>Reporting</h2>
+
+<div>
+    @* Create a HTML Form so that users can enter criteria for the Advanced Report *@
+    @using (Html.BeginForm("Advanced", "Home", FormMethod.Post))
+    {
+        <label>Employee Name</label>
+        @Html.DropDownListFor(m => m.employee_id, Model.Employee, "-- Please select --", new { @class = "form-control" })
+
+        <label>From</label>
+        @Html.TextBoxFor(m => m.DateFrom, "yyyy-MM-dd", new { @Value = "2011-01-01", @type = "date", @class = "form-control" })
+        <label>To</label>
+        @Html.TextBoxFor(m => m.DateTo, "yyyy-MM-dd", new { @Value = "2011-09-30", @type = "date", @class = "form-control" })
+        <br />
+        <input type="submit" value="Generate" class="btn btn-primary" />
+    }
+</div>
+
+@* The next section of the page will only show if report data have been returned (i.e. after criteria have been entered and processed) *@
+@if (Model.employee != null)
+{
+    //this first panel shows general details of the selected vendor
+    <div class="panel panel-success">
+        <div class="panel-heading"><strong>Employee Details: </strong>@Model.employee.emp_fname</div>
+        <div class="panel-body">
+            <label>Last Name: </label>@Model.employee.emp_lname<br />
+            <label>Phone Number: </label>@Model.employee.emp_phone<br />
+
+        </div>
+    </div>
+
+    //This second panel shows the chart
+    <div class="panel">
+        @if (Model.chartData != null)
+        {
+
+            //This will make a call to the EmployeeOrdersChart controller action
+            <img src="@Url.Action("EmployeeChartView", "Home")" />
+        }
+
+    </div>
+
+    <div class="panel panel-info">
+        @foreach (var group in Model.results)
+        {
+            <h4>@group.OrderDate:</h4>
+            <table class="table table-striped">
+                <tr>
+                    <th>Employee</th>
+                    <th>Total sales </th>
+                </tr>
+                <tr>
+                    <td><strong>Total</strong></td>
+                    <td><strong>@group.Amount</strong></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </table>
+            <hr />
+        }
+        <h3>Grand Total: <strong>@Model.results.Sum(group => group.Amount).ToString("C", CultureInfo.CurrentCulture)</strong></h3>
+
+
+    </div>
+
+}
+
+
